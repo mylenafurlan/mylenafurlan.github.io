@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+   
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./login.css" />
+    <title>Instagram login</title>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Instagram</title>
+        <link rel="stylesheet" href="login.css">
+        <script>
+    
+            window.onload = function () {
+                var submit = document.getElementById("submit");
+                submit.addEventListener("click", validarDados);
+    
+                function validarDados() {
+                    var email = document.getElementById("email").value;
+                    var senha = document.getElementById("password").value;
+                    if (email == "" || senha == "") {
+                        alert("Preencha todos os campos!");
+                        return false;
+                    }
+                    if(email.length < 4 || senha.length < 4){
+                        alert("Os dados devem ter mais de 3 caracteres!");
+                        return false;
+                    }
+                    logar();
+                }
+    
+                function logar() {
+                    var xhttp = new XMLHttpRequest();
+                    var email = document.querySelector("#email").value;
+                    var password = document.querySelector("#password").value;
+                    xhttp.open("POST", "https://reqres.in/api/login", true); //Requisição do tipo POST para a API na rota de login
+                    xhttp.setRequestHeader("Content-type", "application/json");
+                    xhttp.send(JSON.stringify({ email: email, password: password }));//Passando os valores de email e password (como JSON)
+                    xhttp.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) { //Verificando se a requisição foi bem sucedida com status 200(ok)
+                        
+                        }
+                        else if (this.readyState == 4 && this.status == 400) { //Verificando se a requisição foi mal sucedida com status 400
+                            alert("Usuário ou senha inválidos!");
+                        }
+                    }
+                }
+            }
+    
+        </script>
+    </head>
+    
+    <body>
+        <header>
+            <a href="index.html" class="logo"><assets class="instagram-logo" src="instagram-logo.png" alt="Instagram"></a>
+        </header>
+    
+        <div class="login">
+            <div class="form input">
+                <h2 style="margin-bottom: 8px;">Use o seu e-mail para entrar</h2>
+                <form class="form input" onsubmit="event.preventDefault();">
+                    <input type="email" id="email" placeholder="E-mail">
+                    <input type="password" id="password" placeholder="Senha">
+                    <button type="submit" id="submit" class="button_entrar">Entrar</button>
+                </form>
+                <p>Não tem uma conta? <a href="#">Cadastre-se</a></p>
+                <p><a href="#">Precisa de ajuda?</a></p>
+            </div>
+        </div>
+</head>
+<body>
+    <main class="flex align-items-center justify-content-center">
+        <section id="mobile" class="flex">
+        </section>
+        <section id="auth" class="flex direction-column">
+            <div class="panel login flex direction-column">
+                <h1 title="Instagram" class="flex justify-content-center">
+                    <img src="./assets/instagram-logo.png" alt="Instagram logo" title="Instagram logo" />
+                </h1>
+                <form>
+                    <label for="email" class="sr-only">Telefone, nome de usuário ou e-mail</label>
+                    <input name="email" placeholder="Telefone, nome de usuário ou e-mail" />
+
+                    <label for="password" class="sr-only">Senha</label>
+                    <input name="password" type="password" placeholder="Senha" />
+
+                    <button type="button">Entrar</button>
+                </form>
+                <div class="flex separator align-items-center">
+                    <span></span>
+                    <div class="or">OU</div>
+                    <span></span>
+                </div>
+                <div class="login-with-fb flex direction-column align-items-center">
+                    <div>
+                        <img />
+                        <a>Entrar com o facebook</a>
+                    </div>
+                    <a href="#">Esqueceu a senha?</a>
+                </div>
+            </div>
+            <div class="panel register flex justify-content-center">
+                <p>Não tem uma conta?</p>
+                <a href="#">Cadastre-se</a>
+            </div>
+            <div class="app-download flex direction-column align-items-center">
+                <p>Obtenha o aplicativo.</p>
+                <div class="flex justify-content-center">
+                    <img src="./assets/apple-button.png"alt="Imagem com a logo da Apple Store" title="Imagem com a logo da Apple Store" />
+                    <img src="./assets/googleplay-button.png" alt="Imagem com a logo da Google Play" title="Imagem com a logo da Google Play" />
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
