@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="upload.css">
+    <script>
+
+        function deslogar() {
+            window.location.href = "index.html";
+            localStorage.removeItem("token")
+        }
+
+        function consultarData() {
+
+            var token = localStorage.getItem("token");
+            if (token == null) {
+                window.location.href = "login.html";
+            }
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "https://projetoinsta-production-aefd.up.railway.app/user/data", true);
+            xhttp.setRequestHeader("Content-type", "application/json");
+            xhttp.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("token")}`);
+            xhttp.send();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    const user = JSON.parse(this.responseText);
+
+                    if (user.permission == 0) {
+                        window.location.href = "login.html";
+                    }
+
+                }
+                else if (this.readyState == 4 && this.status == 401) {
+                    window.location.href = "login.html";
+                }
+            }
+        }
+        consultarData();
+        window.onload = function () {
+            var submit = document.getElementById("submit");
+            submit.addEventListener("click", validarDados);
+
+            function validarDados(){
+                var msg = document.getElementById("msg");
+                var descricao = document.getElementById("descricao").value;
+                var imagem = document.getElementById("imagem").files[0];
+
+                if (descricao == "" ) {
+                    msg.innerHTML = ("Preencha todos os campos!");
+                    return false;
+                }
+                if (descricao.length < 3 ) {
+                    msg.innerHTML = ("O campos deve ter mais de 1 caracter!");
+                    return false;
+                }
+
+                if (imagem == null) {
+                    msg.innerHTML = ("Selecione uma imagem!");
+                    return false;
+                }
+
+                salvar(descricao, imagem);
+            }
+
+            function salvar(descricao, imagem) {
+                var msg = document.getElementById("msg");
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "https://projetoinsta-production-aefd.up.railway.app/img", true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                xhttp.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("token")}`);
+                xhttp.send(JSON.stringify({
+                    "description": descricao,
+                }));
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 201) {
+                        console.log(JSON.parse(this.responseText)._id);
+                        salvarImagem(JSON.parse(this.responseText)._id, imagem);
+                        msg.classList = "sucesso";
+                        msg.innerText = "Upload com sucesso";
+                    }
+                    else if ((this.readyState == 4 && this.status == 401)|| (this.readyState == 4 && this.status == 400)) {
+                        msg.innerText = "Não foi possível subir a imagem";
+                    }
+                }
+            }
+
+            function salvarImagem(id, imagem){
+                var msg = document.getElementById("msg");
+                var data = new FormData();
+                data.append("image",imagem, imagem.name);
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("PATCH", `https://projetoinsta-production-aefd.up.railway.app/img/${id}/image`, true);
+                xhttp.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("token")}`);
+                xhttp.send(data);
+
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        msg.classList = "sucesso";
+                        msg.innerText = "imagem cadastrado com sucesso!";
+                    }
+                    else if ((this.readyState == 4 && this.status == 401)|| (this.readyState == 4 && this.status == 400)) {
+                        msg.innerText = "Não foi possível cadastrar o imagem!";
+                    }
+                }
+
+
+            }
+        }
+
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="div__nav">
+            <a href="index.html" class="logo"><img class="logo" src="logo-nopad.svg" alt="Instagram"></a>
+            <nav>
+                <ul class="nav__links" id="ulMenu">
+                    <li>
+                        <a href="img.html">Feed</a>
+                    </li>
+                    <li><a href="upload.html" style="color: #2c7aed">User</a></li>
+                </ul>
+            </nav>
+            <div style="display: flex;">
+                <h5>Seja bem-vindo</h5>
+                <h5 style="color: #2c7aed; cursor: pointer;" onclick="deslogar()">, Sair</h5>
+            </div>
+        </div>
+
+    </header>
+    <div class="div_principal">
+        <div class="register">
+            <div class="register_container">
+                <h2 style="margin-bottom: 8px;">Cadastre uma imagem</h2>
+                <span>Entre com as infos</span>
+                <form class="register_form" onsubmit="event.preventDefault();">
+                    <input type="text" id="descricao" placeholder="Descrição">
+                    <label for="imagem" style="margin-top: 8px;">Escolha uma imagem:</label>
+                    <input type="file" id="imagem" name="imagem" accept="image/png, image/jpeg">
+                    <button type="submit" id="submit" class="button_register">Enviar</button>
+                    <p id="msg" class="erro"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
