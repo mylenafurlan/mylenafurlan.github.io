@@ -1,119 +1,188 @@
 <!DOCTYPE html>
-<html>
-   
+<html lang="pt_br">
+
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./login.css" />
-    <title>Instagram login</title>
+    <title>Instagram</title>
+    <!-- FAVIVON -->
+    <link rel="shortcut icon" href="./assets/favicon.png" type="image/png">
+    <!-- GOOGLE FONT -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <!-- APP CSS -->
+    <link rel="stylesheet" href="./login.css">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Instagram</title>
-        <link rel="stylesheet" href="login.css">
-        <script>
-    
-            window.onload = function () {
-                var submit = document.getElementById("submit");
-                submit.addEventListener("click", validarDados);
-    
-                function validarDados() {
-                    var email = document.getElementById("email").value;
-                    var senha = document.getElementById("password").value;
-                    if (email == "" || senha == "") {
-                        alert("Preencha todos os campos!");
-                        return false;
-                    }
-                    if(email.length < 4 || senha.length < 4){
-                        alert("Os dados devem ter mais de 3 caracteres!");
-                        return false;
-                    }
-                    logar();
+    <script>
+
+        window.onload = function () {
+            var submit = document.getElementById("submit");
+            submit.addEventListener("click", validarDados);
+
+            function validarDados() {
+                var msg = document.getElementById("msg");
+                var email = document.getElementById("email").value;
+                var senha = document.getElementById("password").value;
+                if (email == "" || senha == "") {
+                    msg.innerText = ("Preencha todos os campos!");
+                    return false;
                 }
-    
-                function logar() {
-                    var xhttp = new XMLHttpRequest();
-                    var email = document.querySelector("#email").value;
-                    var password = document.querySelector("#password").value;
-                    xhttp.open("POST", "https://reqres.in/api/login", true); //Requisição do tipo POST para a API na rota de login
-                    xhttp.setRequestHeader("Content-type", "application/json");
-                    xhttp.send(JSON.stringify({ email: email, password: password }));//Passando os valores de email e password (como JSON)
-                    xhttp.onreadystatechange = function () {
-                        if (this.readyState == 4 && this.status == 200) { //Verificando se a requisição foi bem sucedida com status 200(ok)
-                        
-                        }
-                        else if (this.readyState == 4 && this.status == 400) { //Verificando se a requisição foi mal sucedida com status 400
-                            alert("Usuário ou senha inválidos!");
-                        }
+                if (email.length < 4 || senha.length < 4) {
+                    msg.innerText = ("Os dados devem ter mais de 3 caracteres!");
+                    return false;
+                }
+                logar();
+            }
+
+            function logar() {
+                var xhttp = new XMLHttpRequest();
+                var email = document.querySelector("#email").value;
+                var password = document.querySelector("#password").value;
+                xhttp.open("POST", "https://projetoinsta-production-aefd.up.railway.app/user/login", true); //Requisição do tipo POST para a API na rota de login
+                xhttp.setRequestHeader("Content-type", "application/json");
+                xhttp.send(JSON.stringify({ email: email, password: password }));//Passando os valores de email e password (como JSON)
+                xhttp.onreadystatechange = function () {
+                    var msg = document.querySelector("#msg");
+                    if (this.readyState == 4 && this.status == 200) { //Verificando se a requisição foi bem sucedida com status 200(ok)
+                        var token = JSON.parse(this.response).token; //converte o JSON para objeto para podermos acessar a propriedade token
+                        console.log(token);
+                        localStorage.setItem("token", token); //salva o token no localStorage, com o nome de token
+                        msg.innerText = ("Conectado com sucesso!");
+                        msg.classList = "sucesso"
+                        receberData();
+
+                    }
+                    else if (this.readyState == 4 && this.status == 403) { //Verificando se a requisição foi mal sucedida com status 400
+                        msg.innerText = ("Usuário ou senha inválidos!");
+                    }
+                }
+
+            }
+
+            function receberData() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "https://projetoinsta-production-aefd.up.railway.app/user/data", true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                xhttp.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("token")}`);
+                xhttp.send();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        console.log(this.response);
+                        var data = JSON.parse(this.response);
+                        localStorage.setItem("username", data.name);
+                        setTimeout(function () {
+                            window.location.href = "favoritos.html";
+                        }, 2000);
                     }
                 }
             }
-    
-        </script>
-    </head>
-    
-    <body>
-        <header>
-            <a href="index.html" class="logo"><assets class="instagram-logo" src="instagram-logo.png" alt="Instagram"></a>
-        </header>
-    
-        <div class="login">
-            <div class="form input">
-                <h2 style="margin-bottom: 8px;">Use o seu e-mail para entrar</h2>
-                <form class="form input" onsubmit="event.preventDefault();">
-                    <input type="email" id="email" placeholder="E-mail">
-                    <input type="password" id="password" placeholder="Senha">
-                    <button type="submit" id="submit" class="button_entrar">Entrar</button>
-                </form>
-                <p>Não tem uma conta? <a href="#">Cadastre-se</a></p>
-                <p><a href="#">Precisa de ajuda?</a></p>
+        }
+
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="main-container">
+            <div class="main-content">
+                <div class="slide-container" style="background-image: url(./assets/phone-frame.png);">
+                    <div class="slide-content" id="slide-content">
+                        <img src="./assets/slide (1).jpg (1).jpg" alt="slide image" class="active">
+                        <img src="./assets/slide (2).jpg" alt="slide image">
+                        <img src="./assets/slide (3).jpg" alt="slide image">
+                        <img src="./assets/slide (4).jpg" alt="slide image">
+                        <img src="./assets/slide (5).jpg" alt="slide image">
+                    </div>
+                </div>
+                <div class="form-container">
+                    <div class="form-content box">
+                        <div class="logo">
+                            <img src="./assets/logo-light.png" alt="Instagram logo" class="logo-light">
+                            <img src="./assets/logo-dark.png" alt="Instagram logo" class="logo-dark">
+                        </div>
+                        <div class="signin-form" id="signin-form">
+                            <div class="form-group">
+                                <div class="animate-input">
+                                    <span>
+                                        Phone number, username or email
+                                    </span>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="animate-input">
+                                    <span>
+                                        Password
+                                    </span>
+                                    <input type="password">
+                                    <button>Show</button>
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn-login" id="signin-btn" disabled>
+                                    Log In
+                                </button>
+                            </div>
+                            <div class="divine">
+                                <div></div>
+                                <div>OR</div>
+                                <div></div>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn-fb">
+                                    <img src="./assets/facebook-icon.png" alt="">
+                                    <span>Log in with Facebook</span>
+                                </button>
+                            </div>
+                            <a href="#" class="forgot-pw">Forgot password?</a>
+                        </div>
+                    </div>
+                    <div class="box goto">
+                        <p>
+                            Don't have an account?
+                            <a href="#">Sign up</a>
+                        </p>
+                    </div>
+
+                    <div class="app-download">
+                        <p>Get the app.</p>
+                        <div class="store-link">
+                            <a href="#">
+                                <img src="./assets/app-store.png" alt="app store">
+                            </a>
+                            <a href="#">
+                                <img src="./assets/gg-play.png" alt="google play">
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-</head>
-<body>
-    <main class="flex align-items-center justify-content-center">
-        <section id="mobile" class="flex">
-        </section>
-        <section id="auth" class="flex direction-column">
-            <div class="panel login flex direction-column">
-                <h1 title="Instagram" class="flex justify-content-center">
-                    <img src="./assets/instagram-logo.png" alt="Instagram logo" title="Instagram logo" />
-                </h1>
-                <form>
-                    <label for="email" class="sr-only">Telefone, nome de usuário ou e-mail</label>
-                    <input name="email" placeholder="Telefone, nome de usuário ou e-mail" />
+        <div class="footer">
+            <div class="links">
+                <a href="#">About</a>
+                <a href="#">Blog</a>
+                <a href="#">Jobs</a>
+                <a href="#">Help</a>
+                <a href="#">API</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Top Accounts</a>
+                <a href="#">Hashtags</a>
+                <a href="#">Locations</a>
+                <a href="#" id="darkmode-toggle">Darkmode</a>
+            </div>
+            <div class="copyright">
+                © 2021 Instagram from Facebook
+            </div>
+        </div>
+    </div>
 
-                    <label for="password" class="sr-only">Senha</label>
-                    <input name="password" type="password" placeholder="Senha" />
-
-                    <button type="button">Entrar</button>
-                </form>
-                <div class="flex separator align-items-center">
-                    <span></span>
-                    <div class="or">OU</div>
-                    <span></span>
-                </div>
-                <div class="login-with-fb flex direction-column align-items-center">
-                    <div>
-                        <img />
-                        <a>Entrar com o facebook</a>
-                    </div>
-                    <a href="#">Esqueceu a senha?</a>
-                </div>
-            </div>
-            <div class="panel register flex justify-content-center">
-                <p>Não tem uma conta?</p>
-                <a href="#">Cadastre-se</a>
-            </div>
-            <div class="app-download flex direction-column align-items-center">
-                <p>Obtenha o aplicativo.</p>
-                <div class="flex justify-content-center">
-                    <img src="./assets/apple-button.png"alt="Imagem com a logo da Apple Store" title="Imagem com a logo da Apple Store" />
-                    <img src="./assets/googleplay-button.png" alt="Imagem com a logo da Google Play" title="Imagem com a logo da Google Play" />
-                </div>
-            </div>
-        </section>
-    </main>
+    <!-- APP JS -->
+    <script src="./app.js"></script>
 
 </body>
+
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Cadastro</title>
+    <link rel="stylesheet" href="cadastro.css">
+    <script>
+        window.onload = function () {
+            var submit = document.getElementById("submit");
+            submit.addEventListener("click", validarDados);
+
+            function validarDados() {
+                var msg = document.getElementById("msg");
+                var name = document.getElementById("name").value;
+                var lastName = document.getElementById("lastName").value;
+                var phone = document.getElementById("phone").value;
+                var email = document.getElementById("email").value;
+                var password = document.getElementById("password").value;
+                if (email == "" || password == "" || name == "" || lastName == "" || phone == "") {
+                    msg.innerText = ("Preencha todos os campos!");
+                    return false;
+                }
+                if (phone.length < 11) {
+                    msg.innerText = ("O telefone deve ter 11 dígitos!");
+                    return false;
+                }
+                if (email.length < 4 || password.length < 4 || name.length < 4 || lastName.length < 4) {
+                    msg.innerText = ("Os dados devem ter mais de 3 caracteres!");
+                    return false;
+                }
+
+                cadastrar(name, lastName, phone, email, password);
+            }
+
+            function cadastrar(name, lastName, phone, email, password) {
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "https://projetoinsta-production-aefd.up.railway.app/user", true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                xhttp.send(JSON.stringify({ name: name, lastName: lastName, phone: phone, email: email, password: password }));
+                xhttp.onreadystatechange = function () {
+                    var msg = document.querySelector("#msg");
+                    if (this.readyState == 4 && this.status == 201) {
+                        msg.innerText = ("Cadastrado com sucesso!");
+                        msg.classList = "sucesso"
+                        setTimeout(function () {
+                            window.location.href = "login.html";
+                        }, 2000);
+
+                    }
+                    else if (this.readyState == 4 && this.status == 400) {
+                        msg.innerText = this.responseText;
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <a href="index.html" class="assets"><img class="assets" src="assets/instagram-logo.png" alt="Instagram"></a>
+    </header>
+    <div class="register">
+        <div class="register_container">
+            <h2 style="margin-bottom: 8px;">Entre com suas informações para obter acesso</h2>
+            <span>Você usará esse e-mail e senha para entrar na conta do Instagram</span>
+            <form class="register_form" onsubmit="event.preventDefault();">
+                <input type="text" id="name" placeholder="Nome">
+                <input type="text" id="lastName" placeholder="Sobrenome">
+                <input type="tel" id="phone" placeholder="Telefone para contato">
+                <input type="email" id="email" placeholder="E-mail">
+                <input type="password" id="password" placeholder="Senha">
+                <button type="submit" id="submit" class="button_register">Registrar</button>
+                <p id="msg" class="erro"></p>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
